@@ -1,0 +1,47 @@
+Configuración del Switch en Modo Servidor VTP
+
+enable
+configure terminal
+hostname S1
+enable secret class
+line console 0
+password cisco
+login
+exit
+line vty 0 4
+password cisco
+login
+transport input ssh
+exit
+banner motd # Bienvenido al switch S1. Acceso restringido. #
+vtp mode server
+vtp domain RedEmpresa
+vtp password cisco
+exit
+vlan 10
+name VLAN_10
+exit
+vlan 20
+name VLAN_20
+exit
+vlan 30
+name VLAN_ADMIN
+exit
+interface vlan 30
+ip address 192.168.30.10 255.255.255.0
+no shutdown
+exit
+ip default-gateway 192.168.30.1
+interface GigabitEthernet0/1
+switchport mode trunk
+exit
+interface range GigabitEthernet0/2-24
+switchport mode access
+switchport access vlan 10
+exit
+ip domain-name redempresa.local
+crypto key generate rsa
+1024
+ip ssh version 2
+exit
+write memory
