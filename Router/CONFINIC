@@ -1,7 +1,7 @@
 enable
 configure terminal
 
-! Configuración básica del router
+! 1. Configuración básica del router
 hostname R1
 no ip domain-lookup
 ip domain-name redempresa.local
@@ -12,46 +12,46 @@ enable secret class
 service password-encryption
 banner motd $Acceso restringido. Autorización requerida.$
 
-! Configurar subinterfaces para VLANs
+! 2. Configurar subinterfaces para VLANs
+interface GigabitEthernet0/0
+ description Conexion al Switch 1 (S1)
+ no ip address
+ no shutdown
+exit
+
 interface GigabitEthernet0/0.10
-encapsulation dot1Q 10
-ip address 192.168.10.1 255.255.255.0
-description Subinterfaz para VLAN 10
+ description Subinterfaz para VLAN 10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
 exit
 
 interface GigabitEthernet0/0.20
-encapsulation dot1Q 20
-ip address 192.168.20.1 255.255.255.0
-description Subinterfaz para VLAN 20
+ description Subinterfaz para VLAN 20
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
 exit
 
 interface GigabitEthernet0/0.30
-encapsulation dot1Q 30
-ip address 192.168.30.1 255.255.255.0
-description Subinterfaz para VLAN 30
+ description Subinterfaz para VLAN 30
+ encapsulation dot1Q 30
+ ip address 192.168.30.1 255.255.255.0
 exit
 
-! Activar interfaz física
-interface GigabitEthernet0/0
-no shutdown
-description Conexion al Switch 1 (S1)
-exit
-
-! Configurar seguridad de consola y VTY
+! 3. Configurar seguridad de consola y VTY
 line console 0
-password cisco
-exec-timeout 5 0
-logging synchronous
-login
+ password cisco
+ exec-timeout 5 0
+ logging synchronous
+ login
 exit
 
-line vty 0 15
-password cisco
-exec-timeout 5 0
-logging synchronous
-login local
-transport input ssh
+line vty 0 4
+ password cisco
+ exec-timeout 5 0
+ logging synchronous
+ login local
+ transport input ssh
 exit
 
-! Guardar configuración
+! 4. Guardar configuración
 write memory
