@@ -37,5 +37,21 @@ no shutdown
 description Conexion al Switch 1 (S1)
 exit
 
+! Configurar seguridad de consola y VTY
+line console 0
+password cisco
+exec-timeout 5 0
+logging synchronous
+login
+exit
+
+line vty 0 15
+password cisco
+exec-timeout 5 0
+logging synchronous
+login local
+transport input ssh
+exit
+
 ! Guardar configuración
 write memory
