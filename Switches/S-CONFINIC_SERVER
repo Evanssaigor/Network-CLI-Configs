@@ -35,9 +35,17 @@ ip default-gateway 192.168.30.1
 interface GigabitEthernet0/1
 switchport mode trunk
 exit
-interface range GigabitEthernet0/2-24
+interface range GigabitEthernet0/2-10
 switchport mode access
 switchport access vlan 10
+exit
+interface range GigabitEthernet0/11-20
+switchport mode access
+switchport access vlan 20
+exit
+interface range GigabitEthernet0/21-24
+switchport mode access
+switchport access vlan 30
 exit
 ip domain-name redempresa.local
 crypto key generate rsa
