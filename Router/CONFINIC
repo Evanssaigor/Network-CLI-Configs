@@ -1,38 +1,41 @@
-Guía de Configuración de un Router para Comunicación entre VLANs y Switches.
-
 enable
 configure terminal
+
+! Configuración básica del router
 hostname R1
+no ip domain-lookup
+ip domain-name redempresa.local
+crypto key generate rsa general-keys modulus 1024
+ip ssh version 2
+username admin privilege 15 secret ciscossh
 enable secret class
-line console 0
-password cisco
-login
-exit
-line vty 0 4
-password cisco
-login
-transport input ssh
-exit
-banner motd # Bienvenido al router R1. Acceso restringido. #
+service password-encryption
+banner motd $Acceso restringido. Autorización requerida.$
+
+! Configurar subinterfaces para VLANs
 interface GigabitEthernet0/0.10
 encapsulation dot1Q 10
 ip address 192.168.10.1 255.255.255.0
+description Subinterfaz para VLAN 10
 exit
+
 interface GigabitEthernet0/0.20
 encapsulation dot1Q 20
 ip address 192.168.20.1 255.255.255.0
+description Subinterfaz para VLAN 20
 exit
+
 interface GigabitEthernet0/0.30
 encapsulation dot1Q 30
 ip address 192.168.30.1 255.255.255.0
+description Subinterfaz para VLAN 30
 exit
+
+! Activar interfaz física
 interface GigabitEthernet0/0
 no shutdown
+description Conexion al Switch 1 (S1)
 exit
-ip domain-name redempresa.local
-crypto key generate rsa
-1024
-ip ssh version 2
-ip routing
-exit
+
+! Guardar configuración
 write memory
