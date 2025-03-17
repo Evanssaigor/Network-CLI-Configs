@@ -1,0 +1,36 @@
+enable
+configure terminal
+hostname R1
+enable secret class
+line console 0
+password cisco
+login
+exit
+line vty 0 4
+password cisco
+login
+transport input ssh
+exit
+ip domain-name redempresa.local
+crypto key generate rsa
+1024
+ip ssh version 2
+banner motd # Bienvenido al sistema de RedEmpresa. Acceso restringido. #
+interface GigabitEthernet0/0
+no shutdown
+exit
+interface GigabitEthernet0/0.10
+encapsulation dot1Q 10
+ip address 192.168.0.1 255.255.254.0
+exit
+interface GigabitEthernet0/0.20
+encapsulation dot1Q 20
+ip address 192.168.2.1 255.255.254.0
+exit
+interface GigabitEthernet0/0.30
+encapsulation dot1Q 30
+ip address 192.168.4.1 255.255.254.0
+exit
+ip routing
+exit
+write memory
