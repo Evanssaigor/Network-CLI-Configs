@@ -1,0 +1,37 @@
+enable
+configure terminal
+hostname S1
+enable secret class
+vtp mode server
+vtp domain RedEmpresa
+vtp password cisco
+exit
+vlan 10
+name VLAN_10
+exit
+vlan 20
+name VLAN_20
+exit
+vlan 30
+name VLAN_ADMIN
+exit
+interface vlan 30
+ip address 192.168.5.254 255.255.254.0
+no shutdown
+exit
+ip default-gateway 192.168.4.1
+line console 0
+password cisco
+login
+exit
+line vty 0 4
+password cisco
+login
+transport input ssh
+exit
+ip domain-name redempresa.local
+crypto key generate rsa
+1024
+ip ssh version 2
+exit
+write memory
