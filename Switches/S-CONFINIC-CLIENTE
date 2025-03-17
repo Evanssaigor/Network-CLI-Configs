@@ -1,46 +1,97 @@
-Configuración del Switch en Modo Cliente VTP
-
 enable
 configure terminal
-hostname S2
-enable secret class
+
+! 1. Deshabilitar la resolución de nombres DNS
+no ip domain-lookup
+
+! 2. Cambiar el nombre del dispositivo
+hostname SW-Client
+
+! 3. Configurar contraseñas de acceso
+! - Consola
 line console 0
 password cisco
+exec-timeout 5 0
+logging synchronous
 login
 exit
-line vty 0 4
+
+! - Acceso remoto (SSH)
+line vty 0 15
 password cisco
-login
+exec-timeout 5 0
+logging synchronous
+login local
 transport input ssh
 exit
-banner motd # Bienvenido al switch S2. Acceso restringido. #
+
+! 4. Configurar SSH y usuario local
+ip domain-name redempresa.local
+crypto key generate rsa general-keys modulus 1024
+ip ssh version 2
+username admin privilege 15 secret ciscossh
+
+! 5. Configurar contraseña de modo privilegiado
+enable secret class
+
+! 6. Cifrar las contraseñas
+service password-encryption
+
+! 7. Configurar la interfaz de administración (VLAN 30)
+interface vlan 30
+ip address 192.168.0.4 255.255.255.0
+no shutdown
+description Gestion
+exit
+
+! 8. Configurar la puerta de enlace predeterminada
+ip default-gateway 192.168.0.1
+
+! 9. Configurar un mensaje de aviso (banner MOTD)
+banner motd $Acceso restringido. Autorización requerida.$
+
+! 10. Configurar VTP (modo cliente)
 vtp mode client
 vtp domain RedEmpresa
 vtp password cisco
-exit
-interface vlan 30
-ip address 192.168.30.11 255.255.255.0
-no shutdown
-exit
-ip default-gateway 192.168.30.1
-interface GigabitEthernet0/1
-switchport mode trunk
-exit
-interface range GigabitEthernet0/2-10
+
+! 11. Asignar interfaces a VLANs (las VLANs se obtienen del servidor VTP)
+interface range FastEthernet0/4-10
 switchport mode access
 switchport access vlan 10
+description Conexion a PCs VLAN 10
 exit
-interface range GigabitEthernet0/11-20
+
+interface range FastEthernet0/11-20
 switchport mode access
 switchport access vlan 20
+description Conexion a PCs VLAN 20
 exit
-interface range GigabitEthernet0/21-24
+
+interface range FastEthernet0/21-23
 switchport mode access
 switchport access vlan 30
+description Conexion a PCs VLAN 30
 exit
-ip domain-name redempresa.local
-crypto key generate rsa
-1024
-ip ssh version 2
+
+! 12. Configurar puertos Trunk (conexión al router y a los switches)
+interface GigabitEthernet0/0
+switchport mode trunk
+switchport trunk native vlan 99
+switchport trunk allowed vlan 10,20,30
+description Conexion al router
 exit
+
+interface range FastEthernet0/1-3
+switchport mode trunk
+switchport trunk native vlan 99
+switchport trunk allowed vlan 10,20,30
+description Conexion a otros switches
+exit
+
+! 13. Configurar seguridad de contraseñas y accesos
+security passwords min-length 5
+login block-for 30 attempts 3 within 60
+
+! 14. Guardar la configuración
 write memory
