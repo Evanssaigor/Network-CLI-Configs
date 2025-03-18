@@ -64,7 +64,7 @@ banner motd $Acceso restringido. Autorización requerida.$
 
 ! 10. Configurar VTP (modo servidor)
 vtp mode server
-vtp domain RedEmpresa
+vtp domain RedEmpresa.com
 vtp password cisco
 
 ! 11. Creación de VLANs con descripciones
