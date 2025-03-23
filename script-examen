@@ -1,0 +1,17 @@
+# Importar el módulo de Active Directory
+Import-Module ActiveDirectory
+
+# Crear usuarios
+New-ADUser -Name "exam01" -GivenName "exam01" -Surname "User" -SamAccountName "exam01" -UserPrincipalName "exam01@CNTS.LOCAL" -AccountPassword (ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $true -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
+New-ADUser -Name "exam02" -GivenName "exam02" -Surname "User" -SamAccountName "exam02" -UserPrincipalName "exam02@CNTS.LOCAL" -AccountPassword (ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $true -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
+New-ADUser -Name "exam03" -GivenName "exam03" -Surname "User" -SamAccountName "exam03" -UserPrincipalName "exam03@CNTS.LOCAL" -AccountPassword (ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $true -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
+
+# Crear grupos
+New-ADGroup -Name "_GAR-CNTS-USUARIOS-EXAMEN" -SamAccountName "_GAR-CNTS-USUARIOS-EXAMEN" -GroupCategory Security -GroupScope Global -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
+New-ADGroup -Name "_LAR-CNTS-USUARIOS-EXAMEN" -SamAccountName "_LAR-CNTS-USUARIOS-EXAMEN" -GroupCategory Security -GroupScope DomainLocal -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
+
+# Añadir usuarios al grupo global
+Add-ADGroupMember -Identity "_GAR-CNTS-USUARIOS-EXAMEN" -Members "exam01", "exam02", "exam03"
+
+# Añadir grupo global al grupo local
+Add-ADGroupMember -Identity "_LAR-CNTS-USUARIOS-EXAMEN" -Members "_GAR-CNTS-USUARIOS-EXAMEN"
