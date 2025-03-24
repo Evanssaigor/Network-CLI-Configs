@@ -1,173 +1,32 @@
-Examen completo paso a paso
-1. Organización inicial del dominio (1 punto)
-Abrir la consola de "Usuarios y Equipos de Active Directory":
-
-Menú de inicio > Buscar "Active Directory Users and Computers" > Abrir.
-
-Crear la OU USUARIOS-EXAMEN:
-
-Panel izquierdo > Clic derecho sobre CNTS.LOCAL > Nuevo > Unidad Organizativa > Nombre: USUARIOS-EXAMEN > Aceptar.
-
-Crear la OU EQUIPOS-EXAMEN:
-
-Panel izquierdo > Clic derecho sobre CNTS.LOCAL > Nuevo > Unidad Organizativa > Nombre: EQUIPOS-EXAMEN > Aceptar.
-
-Redirigir usuarios a la OU USUARIOS-EXAMEN:
-
-Abrir cmd como administrador > Ejecutar:
-
-Copy
 redirusr "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
-Redirigir equipos a la OU EQUIPOS-EXAMEN:
 
-En la misma consola de comandos, ejecutar:
-
-Copy
 redircmp "OU=EQUIPOS-EXAMEN,DC=CNTS,DC=LOCAL"
-Verificar la redirección de usuarios:
 
-Consola de Usuarios y Equipos de Active Directory > Clic derecho sobre USUARIOS-EXAMEN > Nuevo > Usuario > Crear usuario_prueba > Verificar que aparece en USUARIOS-EXAMEN.
+# Definir variables
+$OU = "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
+$Password = ConvertTo-SecureString "P@55wOrd" -AsPlainText -Force
 
-Verificar la redirección de equipos:
+# Crear usuarios
+New-ADUser -Name "exam01" -GivenName "exam01" -Surname "Usuario" -SamAccountName "exam01" -UserPrincipalName "exam01@CNTS.LOCAL" -AccountPassword $Password -Enabled $true -Path $OU -ChangePasswordAtLogon $true
+New-ADUser -Name "exam02" -GivenName "exam02" -Surname "Usuario" -SamAccountName "exam02" -UserPrincipalName "exam02@CNTS.LOCAL" -AccountPassword $Password -Enabled $true -Path $OU -ChangePasswordAtLogon $true
+New-ADUser -Name "exam03" -GivenName "exam03" -Surname "Usuario" -SamAccountName "exam03" -UserPrincipalName "exam03@CNTS.LOCAL" -AccountPassword $Password -Enabled $true -Path $OU -ChangePasswordAtLogon $true
 
-En el cliente CLICNTSCDW01, unir el equipo al dominio CNTS.LOCAL > Verificar que el equipo aparece en EQUIPOS-EXAMEN.
+# Crear grupos
+New-ADGroup -Name "_GAR-CNTS-USUARIOS-EXAMEN" -SamAccountName "_GAR-CNTS-USUARIOS-EXAMEN" -GroupCategory Security -GroupScope Global -DisplayName "_GAR-CNTS-USUARIOS-EXAMEN" -Path $OU
+New-ADGroup -Name "_LAR-CNTS-USUARIOS-EXAMEN" -SamAccountName "_LAR-CNTS-USUARIOS-EXAMEN" -GroupCategory Security -GroupScope DomainLocal -DisplayName "_LAR-CNTS-USUARIOS-EXAMEN" -Path $OU
 
-2. Creación de usuarios y grupos (1,5 puntos)
-Abrir PowerShell ISE como administrador:
-
-Menú de inicio > Buscar Windows PowerShell ISE > Clic derecho > Ejecutar como administrador.
-
-Ejecutar el script de creación de usuarios y grupos:
-
-Copiar y pegar el siguiente script en PowerShell ISE:
-
-powershell
-Copy
-Import-Module ActiveDirectory
-
-New-ADUser -Name "exam01" -GivenName "exam01" -Surname "User" -SamAccountName "exam01" -UserPrincipalName "exam01@CNTS.LOCAL" -AccountPassword (ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $true -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
-New-ADUser -Name "exam02" -GivenName "exam02" -Surname "User" -SamAccountName "exam02" -UserPrincipalName "exam02@CNTS.LOCAL" -AccountPassword (ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $true -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
-New-ADUser -Name "exam03" -GivenName "exam03" -Surname "User" -SamAccountName "exam03" -UserPrincipalName "exam03@CNTS.LOCAL" -AccountPassword (ConvertTo-SecureString "P@55w0rd" -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $true -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
-
-New-ADGroup -Name "_GAR-CNTS-USUARIOS-EXAMEN" -SamAccountName "_GAR-CNTS-USUARIOS-EXAMEN" -GroupCategory Security -GroupScope Global -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
-New-ADGroup -Name "_LAR-CNTS-USUARIOS-EXAMEN" -SamAccountName "_LAR-CNTS-USUARIOS-EXAMEN" -GroupCategory Security -GroupScope DomainLocal -Path "OU=USUARIOS-EXAMEN,DC=CNTS,DC=LOCAL"
-
-Add-ADGroupMember -Identity "_GAR-CNTS-USUARIOS-EXAMEN" -Members "exam01", "exam02", "exam03"
+# Anidar grupos
 Add-ADGroupMember -Identity "_LAR-CNTS-USUARIOS-EXAMEN" -Members "_GAR-CNTS-USUARIOS-EXAMEN"
-Ejecutar el script (F5).
 
-Verificar la creación:
+# Agregar usuarios al grupo global
+Add-ADGroupMember -Identity "_GAR-CNTS-USUARIOS-EXAMEN" -Members "exam01", "exam02", "exam03"
 
-Consola de Usuarios y Equipos de Active Directory > Verificar que los usuarios exam01, exam02, exam03 están en USUARIOS-EXAMEN.
+carpetas
 
-Verificar que los grupos _GAR-CNTS-USUARIOS-EXAMEN y _LAR-CNTS-USUARIOS-EXAMEN están creados y que los usuarios están añadidos al grupo global.
+New-Item -Path "G:\EXAMEN" -ItemType Directory
+New-Item -Path "G:\EXAMEN\COMUSER-EXAMEN" -ItemType Directory
+New-Item -Path "G:\EXAMEN\COMUSER-EXAMEN\GRUPOS" -ItemType Directory
+New-Item -Path "G:\EXAMEN\USUARIOS-EXAMEN" -ItemType Directory
 
-3. Configuración del servidor de ficheros (2 puntos)
-Abrir el Explorador de Archivos:
-
-Menú de inicio > Abrir Explorador de Archivos.
-
-Crear la estructura de carpetas:
-
-Navegar a G: > Crear:
-
-G:\EXAMEN
-
-G:\EXAMEN\COMUSER-EXAMEN
-
-G:\EXAMEN\GRUPOS
-
-G:\EXAMEN\USUARIOS-EXAMEN
-
-Compartir la carpeta COMUSER-EXAMEN:
-
-Clic derecho sobre G:\EXAMEN\COMUSER-EXAMEN > Propiedades > Pestaña Compartir > Compartir... > Seleccionar _GAR-CNTS-USUARIOS-EXAMEN > Permisos: Lectura/Escritura > Compartir > Listo.
-
-Compartir la carpeta USUARIOS-EXAMEN:
-
-Clic derecho sobre G:\EXAMEN\USUARIOS-EXAMEN > Propiedades > Pestaña Compartir > Compartir... > Seleccionar _GAR-CNTS-USUARIOS-EXAMEN > Permisos: Lectura/Escritura > Compartir > Listo.
-
-Asignar permisos NTFS:
-
-Para cada carpeta compartida, pestaña Seguridad > Asegurar que _GAR-CNTS-USUARIOS-EXAMEN tiene permisos de Lectura/Escritura.
-
-Crear la carpeta de trabajo:
-
-Dentro de G:\EXAMEN\GRUPOS, crear carpeta TRABAJO-EX.
-
-Asignar permisos a la carpeta de trabajo:
-
-Clic derecho sobre TRABAJO-EX > Propiedades > Pestaña Seguridad > Asignar:
-
-exam01: **Lectura/Escritura`
-
-exam02 y exam03: Sólo Lectura
-
-Configurar unidades privadas para los usuarios:
-
-Consola de Usuarios y Equipos de Active Directory > Para cada usuario (exam01, exam02, exam03), clic derecho > Propiedades > Pestaña Perfil > Conectar > Letra de unidad Y: > Ruta: \\SRVCNTSCDW01\USUARIOS-EXAMEN\<nombre_de_usuario> > Aceptar.
-
-Configurar cuotas de almacenamiento:
-
-Abrir Administración de recursos del servidor de archivos > Administración de cuotas > Crear plantilla LIMITE 1GB > Límite: 1 GB > Aplicar a G:\EXAMEN\GRUPOS.
-
-4. Configuración de DHCP (1 punto)
-Abrir la consola de DHCP:
-
-Menú de inicio > Abrir DHCP.
-
-Excluir el rango de direcciones:
-
-Expandir servidor y ámbito > Clic derecho sobre Exclusiones > Nueva exclusión > Rango: 172.16.10.150 a 172.16.10.160 > Aceptar.
-
-Crear la reserva para una impresora:
-
-Clic derecho sobre Reservas > Nueva reserva > Nombre: Impresora > Dirección IP: 172.16.10.155 > Dirección MAC: 00-11-22-33-44-55 > Aceptar.
-
-Verificar la reserva:
-
-En la consola de DHCP, verificar que la reserva aparece en la lista de reservas y está activa.
-
-5. Configuración de directivas de grupo (GPO) (2,5 puntos)
-5.1. GPO de usuario
-Crear la GPO:
-
-Abrir Administración de directivas de grupo (GPMC) > Clic derecho sobre USUARIOS-EXAMEN > Crear un GPO en este dominio y vincularlo aquí > Nombre: CNTS-USUARIOS-EXAM.
-
-Configurar la GPO:
-
-Clic derecho sobre CNTS-USUARIOS-EXAM > Editar > Configuración de usuario > Preferencias > Configuración de Windows > Unidades de red > Clic derecho > Nuevo > Unidad de red > Letra: Q: > Ruta: \\SRVCNTSCDW01\COMUSER-EXAMEN > Aceptar.
-
-Configurar el protector de pantalla:
-
-Configuración de usuario > Plantillas administrativas > Panel de control > Pantalla > Habilitar:
-
-Activar protector de pantalla: 2 minutos.
-
-Requerir contraseña al reanudar.
-
-Impedir el cambio del protector de pantalla por parte del usuario.
-
-5.2. GPO de equipo
-Crear la GPO:
-
-En GPMC, clic derecho sobre EQUIPOS-EXAMEN > Crear un GPO en este dominio y vincularlo aquí > Nombre: CNTS-EQUIPOS-EXAM.
-
-Configurar la GPO:
-
-Clic derecho sobre CNTS-EQUIPOS-EXAM > Editar > Configuración de equipo > Plantillas administrativas > Sistema > Inicio de sesión > Habilitar Mostrar mensaje legal antes del inicio de sesión > Título: "ACCESO RESTRINGIDO" > Mensaje: "Sistema reservado a personal autorizado del CCEA.".
-
-Renombrar la cuenta de administrador local:
-
-Configuración de equipo > Preferencias > Configuración de Windows > Cuentas de usuario > Clic derecho > Nuevo > Cuenta de usuario > Nombre: Administrador > Nuevo nombre: adminCNTS > Aceptar.
-
-6. Entrega del examen
-Guardar el script de PowerShell:
-
-Guardar el script como CreacionUsuariosGrupos.ps1.
-
-Comprimir los archivos:
-
-Comprimir CreacionUsuariosGrupos.ps1 en un archivo .zip.
-
-Entregar el archivo comprimido.
+3.2.
+New-SmbShare -Name "COMUSER-EXAMEN" -Path "G:\EXAMEN\COMUSER-EXAMEN" -FullAccess "CNTS\_LAR-CNTS-USUARIOS-EXAMEN" -ReadAccess "CNTS\Usuarios del dominio"
